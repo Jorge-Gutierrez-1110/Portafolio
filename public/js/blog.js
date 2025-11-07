@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 1. FUNCIÓN PRINCIPAL PARA OBTENER Y MOSTRAR LA LISTA DE POSTS ---
     async function loadPosts() {
         try {
-            const response = await fetch('http://localhost:3000/api/posts');
+            const response = await fetch('/api/posts');
             if (!response.ok) throw new Error('No se pudieron cargar las publicaciones.');
 
             allPosts = await response.json();
