@@ -24,11 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. AUTENTICACIÓN Y SESIÓN ---
     function checkAuth() {
-        if (!token) { window.location.href = 'login.html'; }
+        if (!token) { window.location.href = 'login'; }
     }
     logoutButton.addEventListener('click', () => {
         localStorage.removeItem('token');
-        window.location.href = 'login.html';
+        window.location.href = 'login';
     });
 
     // --- 2. OBTENER Y RENDERIZAR POSTS ---
