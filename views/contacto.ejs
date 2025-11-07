@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto - Jorge Gtz</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/contacto.css">
+    <link rel="shortcut icon" href="img/logo-blanco.png">
+</head>
+
+<body>
+
+    <%- include('partials/navbar') %>
+
+        <section id="contacto" class="contact-section">
+            <div class="contact-container">
+                <h2>Métodos de contacto:</h2>
+                <p>Hola, que sepas que puedes contactarme de diferentes maneras, a través de mi <a
+                        href="https://www.linkedin.com/in/jorgegutierrez11104/" target="_blank">Linkedin</a>, a través
+                    de <a href="https://github.com/Jorge-Gutierrez-1110" target="_blank">Github</a> o a través del
+                    siguiente formulario:</p>
+                <p>También puedes ponerte en contacto conmigo enviándome un email a <a
+                        href="mailto:jorge.gutierrez.11104@gmail.com">jorge.gutierrez.11104@gmail.com</a></p>
+                <div class="email-container">
+                    <span id="emailText">jorge.gutierrez.11104@gmail.com</span>
+                    <button id="copyBtn">Copiar</button>
+                    <span id="copiedMsg" class="hidden">¡Copiado!</span>
+                </div>
+            </div>
+            <form id="contactForm" class="contact-form">
+                <input type="text" id="name" name="name" placeholder="Tu nombre" required>
+                <input type="email" id="email" name="email" placeholder="Tu email" required>
+                <textarea id="message" name="message" placeholder="Mensaje" required></textarea>
+                <button type="submit">Enviar mensaje</button>
+            </form>
+            </div>
+        </section>
+
+        <%- include('partials/footer') %>
+
+            <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+            <script type="module" src="/js/contact.js"></script>
+
+</body>
+
+</html>

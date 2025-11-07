@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" defer></script>
+</head>
+
+<body>
+    <header>
+        <h1>Dashboard de Administración</h1>
+        <button id="logoutButton">Cerrar Sesión</button>
+    </header>
+
+    <main>
+        <h2>Crear Nueva Publicación</h2>
+
+        <hr>
+
+        <h2>Mis Publicaciones</h2>
+        <div id="posts-list">
+        </div>
+    </main>
+
+    <section id="create-post-section">
+        <h3>Crear Post Normal</h3>
+        <form id="create-post-form" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="post-title">Título:</label>
+                <input type="text" id="post-title" name="title" required>
+            </div>
+            <div class="form-group">
+                <label for="post-date">Fecha de Publicación:</label>
+                <input type="date" id="post-date" name="date" required>
+            </div>
+            <div class="form-group">
+                <label for="post-content">Contenido:</label>
+                <textarea id="post-content" name="content" rows="5" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="post-images">Imágenes (múltiples):</label>
+                <input type="file" id="post-images" name="images" multiple accept="image/*">
+                <div id="cropped-previews-container"></div>
+            </div>
+            <button type="submit">Crear Publicación</button>
+        </form>
+    </section>
+
+    
+
+    <hr>
+    <section id="create-article-section">
+        <h3>Crear Artículo con Secciones</h3>
+        <form id="create-article-form">
+            <div class="form-group">
+                <label for="article-title">Título del Artículo:</label>
+                <input type="text" id="article-title" name="title" required>
+                <div class="form-group">
+                    <label for="post-date">Fecha de Publicación:</label>
+                    <input type="date" id="article-date" name="date" required>
+                </div>
+            </div>
+
+            <div id="dynamic-sections-container">
+            </div>
+
+            <button type="button" id="add-section-btn">+ Añadir Sección</button>
+
+            <hr>
+
+            <button type="submit">Crear Artículo</button>
+        </form>
+    </section>
+
+    <div id="cropper-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2>Recortar Imagen</h2>
+            <div class="img-container">
+                <img id="image-to-crop" src="">
+            </div>
+            <button id="crop-and-save-btn">Recortar y Aceptar</button>
+            <button id="cancel-crop-btn">Cancelar</button>
+        </div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+
+</html>

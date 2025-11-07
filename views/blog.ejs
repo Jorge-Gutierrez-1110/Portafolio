@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - Jorge Gtz</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/blog.css">
+    <link rel="shortcut icon" href="img/logo-blanco.png">
+</head>
+
+<body>
+
+    <%- include('partials/navbar') %>
+
+    <div id="bannerContainer" class="banner" class="hidden">
+        <h1>Blog</h1>
+        <p>Bienvenido a mi blog personal, aqui muestro eventos o cosas relacionadas con el mundo de desarrollo, y aveces comparto mis aventuras</p>
+    </div>
+
+    <main>
+        <div id="blog-container" class="card-blog">
+        </div>
+
+        <div id="single-post-container" class="hidden">
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script src="js/blog.js"></script>
+</body>
+
+</html>

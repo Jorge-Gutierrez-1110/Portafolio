@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portafolio - Jorge Gtz</title>
+
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="shortcut icon" href="img/logo-blanco.png">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <%- include('partials/navbar') %>
+
+    <div class="banner" id="inicio">
+        <canvas id="particleCanvas"></canvas>
+        <div class="content-banner">
+            <div class="logo-banner">
+                <img src="img/logo-blanco.png" alt="">
+            </div>
+            <h1>Jorge Gutierrez</h1>
+            <p>Desarrollador de Software</p>
+            <a class="btn-banner" href="img/CV Gutierrez Santos Jorge Elias WEB.pdf" target="_blank">Abrir CV</a>
+            <a class="btn-banner" href="img/CV Gutierrez Santos Jorge Elias WEB.pdf" download="">Descargar CV</a>
+        </div>
+    </div>
+
+
+
+    <div class="about-me" id="sobre-mi">
+        <div class="about-me-img">
+            <img src="img/me.png" alt="">
+        </div>
+        <div class="about-me-txt">
+            <h2>Sobre mí</h2>
+            <p>Soy Jorge Gutiérrez, un apasionado del desarrollo FrontEnd y la programación. Mi viaje en este fascinante mundo comenzó en la secundaria, donde descubrí mi interés por la tecnología. Actualmente, sigo aprendiendo de manera autodidacta y estoy cursando la universidad para perfeccionar mis habilidades y desarrollarme aún más como desarrollador web.</p>
+        </div>
+    </div>
+
+    <div class="titulo-sec-gen-v2">
+        <h2>Mis Hobbies</h2>
+    </div>
+
+    <div class="hobbies">
+        <div class="hobbi-card">
+            <div class="hobbie-img">
+                <img src="img/code.svg" alt="Hobbie">
+            </div>
+            <div class="hobbie-txt">
+                <h2>Crear codigo</h2>
+            </div>
+        </div>
+
+        <div class="hobbi-card">
+            <div class="hobbie-img">
+                <img src="img/web.svg" alt="Hobbie">
+            </div>
+            <div class="hobbie-txt">
+                <h2>Estructurar paginas web</h2>
+            </div>
+        </div>
+
+        <div class="hobbi-card">
+            <div class="hobbie-img">
+                <img src="img/draw.svg" alt="Hobbie">
+            </div>
+            <div class="hobbie-txt">
+                <h2>Dibujar</h2>
+            </div>
+        </div>
+
+        <div class="hobbi-card">
+            <div class="hobbie-img">
+                <img src="img/music.svg" alt="Hobbie">
+            </div>
+            <div class="hobbie-txt">
+                <h2>Escuchar musica</h2>
+            </div>
+        </div>
+
+        <div class="hobbi-card">
+            <div class="hobbie-img">
+                <img src="img/videogames.svg" alt="Hobbie">
+            </div>
+            <div class="hobbie-txt">
+                <h2>Jugar videojuegos</h2>
+            </div>
+        </div>
+
+        <div class="hobbi-card">
+            <div class="hobbie-img">
+                <img src="img/guitar.svg" alt="Hobbie">
+            </div>
+            <div class="hobbie-txt">
+                <h2>Tocar la guitarra</h2>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="titulo-sec-gen-v2" id="habilidades">
+        <h2>Habilidades</h2>
+    </div>
+
+    <div class="container-skills">
+        <div class="container">
+            <div class="tech-box">
+                <div class="tech-track" id="techTrack"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="titulo-sec-gen-v2" id="proyectos">
+        <h2>Proyectos</h2>
+    </div>
+
+    <div class="container-projects">
+        <div class="projects-container">
+            <div class="filter-buttons" id="filterButtons">
+                <button class="filter-button active" data-category="all">Todos</button>
+                <button class="filter-button" data-category="web">Web</button>
+                <button class="filter-button" data-category="mobile">Móvil</button>
+            </div>
+            <div class="projects-grid" id="projectsGrid"></div>
+        </div>
+    </div>
+
+
+
+    <%- include('partials/footer') %>
+
+    <script src="js/index.js"></script>
+    <script src="js/banner.js"></script>
+
+</body>
+</html>
