@@ -1,0 +1,94 @@
+.contact-section {
+    margin: 150px 50px;
+    padding: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 50px;
+}
+
+.contact-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.contact-container a {
+    text-decoration: none;
+    color: black;
+    font-size: 18px;
+    transition: 0.5s all ease-in-out;
+}
+
+.contact-container a:hover {
+    color: #3490dc;
+    transition: 0.5s all ease-in-out;
+}
+
+.email-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #1E2022;
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 12px;
+}
+
+#copyBtn {
+    background: #3a86ff;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#copyBtn:hover {
+    background: #2668d3;
+}
+
+.hidden {
+    display: none;
+}
+
+#copiedMsg {
+    color: #4ade80;
+    /* verde */
+    font-size: 0.9em;
+}
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+
+.contact-form input,
+.contact-form textarea {
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    width: 600px;
+}
+
+.contact-form input:hover,
+.contact-form textarea:hover {
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+.contact-form button {
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    background-color: #000;
+    color: white;
+    cursor: pointer;
+}
