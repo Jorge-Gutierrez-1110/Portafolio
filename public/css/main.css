@@ -30,7 +30,7 @@ body {
     
 }
 
-/* 🧭 NAVBAR */
+/*NAV*/
 .navbar {
     position: fixed;
     top: 0;
@@ -40,7 +40,6 @@ body {
     backdrop-filter: blur(10px);
     transition: background-color 0.3s, box-shadow 0.3s;
     z-index: 1000;
-    animation: fadeInDown 0.5s ease-out;
 }
 
 .navbar.scrolled {
@@ -69,15 +68,12 @@ body {
 .nav-links {
     display: flex;
     list-style: none;
+    margin: 0;
+    padding: 0;
 }
 
 .nav-link {
     position: relative;
-    color: var(--text-color);
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    transition: color 0.3s, background-color 0.3s;
 }
 
 .nav-link::after {
@@ -96,13 +92,20 @@ body {
     left: 0;
 }
 
+.nav-link {
+    color: var(--text-color);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    transition: color 0.3s, background-color 0.3s;
+    border-radius: 4px;
+}
+
 .nav-link:hover,
 .nav-link.active {
     color: var(--primary-color);
     background-color: rgba(52, 144, 220, 0.1);
 }
 
-/* 📱 Mobile navbar */
 .mobile-menu-toggle {
     display: none;
     background: none;
@@ -131,7 +134,16 @@ body {
     display: block;
 }
 
-/* 🔹 Animación navbar */
+#progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 4px;
+    background-color: var(--primary-color);
+    width: 0;
+    transition: width 0.3s ease-out;
+}
+
 @keyframes fadeInDown {
     from {
         opacity: 0;
@@ -144,7 +156,11 @@ body {
     }
 }
 
-/* ⚡ Botones generales */
+.navbar {
+    animation: fadeInDown 0.5s ease-out;
+}
+
+/* Botones generales */
 button,
 .btn-banner {
     padding: 10px 20px;
@@ -168,7 +184,7 @@ button:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* 🦶 FOOTER */
+/* Footer */
 footer {
     background: var(--primary-100);
     color: var(--accent-200);
