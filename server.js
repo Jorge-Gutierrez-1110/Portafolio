@@ -43,7 +43,22 @@ mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('✅ Conectado a MongoDB Atlas'))
     .catch((err) => console.error('❌ Error al conectar a MongoDB:', err));
 
+    
+
 // --- CONFIGURACIÓN DE MULTER ---
+const fs = require('fs');
+const uploadsDir = path.join(__dirname, 'public/uploads');
+
+// Crear carpeta "uploads" si no existe
+try {
+    if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+        console.log('📁 Carpeta "uploads" creada automáticamente.');
+    }
+} catch (err) {
+    console.error('❌ No se pudo crear la carpeta "uploads":', err);
+}
+
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'public/uploads/');
@@ -67,7 +82,9 @@ app.get('/api/posts', async (req, res) => {
 
 // Middleware de autenticación con JWT desde cookie
 function authenticateToken(req, res, next) {
-    const token = req.cookies.token;
+    const authHeader = req.headers['authorization'];
+    const token = req.cookies.token || (authHeader && authHeader.split(' ')[1]); // <-- cambia esto
+
     if (!token) return res.status(401).json({ message: 'Token no proporcionado.' });
 
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
