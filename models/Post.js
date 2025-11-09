@@ -9,7 +9,7 @@ const sectionSchema = new mongoose.Schema({
     },
     content: {
         type: String,
-        required: true // El contenido de una sección sí es obligatorio
+        required: false // El contenido de una sección sí es obligatorio
     },
     image: {
         type: String, // Guardaremos la URL de la imagen
