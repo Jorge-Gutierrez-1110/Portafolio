@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             // Editar
             if (target.classList.contains('edit-btn')) {
-                window.location.href = `editPost.html?id=${postId}`;
+                window.location.href = `editPost.ejs?id=${postId}`;
             }
             // Carrusel
             const isNext = target.classList.contains('next-btn');
