@@ -131,6 +131,21 @@ app.delete('/api/posts/:id', authenticateToken, async (req, res) => {
     }
 });
 
+// Obtener un post por ID
+app.get('/api/posts/:id', async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id);
+        if (!post) {
+            return res.status(404).json({ message: 'Post no encontrado' });
+        }
+        res.json(post);
+    } catch (error) {
+        console.error('Error al obtener el post:', error);
+        res.status(500).json({ message: 'Error en el servidor' });
+    }
+});
+
+
 app.post('/api/articles', authenticateToken, async (req, res) => {
     try {
         const newArticle = new Post(req.body);
