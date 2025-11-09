@@ -174,6 +174,13 @@ app.get('/dashboard', (req, res) => {
     res.render('dashboard', { title: 'Dashboard' });
 });
 
+app.get('/editPost', async (req, res) => {
+    const postId = req.query.id;
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).send('Post no encontrado');
+    res.render('editPost', { title: 'Editar publicación', post });
+});
+
 // --- AUTENTICACIÓN (Login / Registro) ---
 
 // Registrar usuario (solo si aún no hay ninguno)
