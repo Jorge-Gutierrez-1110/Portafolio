@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error('No se pudieron cargar las publicaciones.');
 
             allPosts = await response.json();
+            allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
             renderPostList(allPosts);
         } catch (error) {
             console.error(error);

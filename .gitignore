@@ -16,6 +16,9 @@ logs/
 .DS_Store
 Thumbs.db
 
+# Carpeta de subidas (si guardas imágenes localmente)
+public/uploads/
+
 # Build o archivos generados (si en algún momento haces build)
 dist/
 build/
