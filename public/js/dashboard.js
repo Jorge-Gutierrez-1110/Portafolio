@@ -22,6 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentFileIndex = 0;
     let croppedFiles = [];
 
+    // --- NUEVO: array para guardar URLs ya subidas (videos u otros) ---
+    let uploadedUrls = []; // aqui guardamos { url, type } o sólo url
+
     // --- 1. AUTENTICACIÓN Y SESIÓN ---
     function checkAuth() {
         if (!token) { window.location.href = 'login'; }
@@ -101,30 +104,40 @@ document.addEventListener('DOMContentLoaded', () => {
     // 👉 NUEVA FUNCIÓN para subir videos sin recorte
     function handleVideoUpload(file) {
         const formData = new FormData();
-        formData.append("images", file); // usa el mismo endpoint
+        formData.append("image", file); // endpoint /api/upload espera 'image' como nombre de campo
 
         fetch("/api/upload", {
             method: "POST",
             headers: { "Authorization": `Bearer ${token}` },
             body: formData
         })
-        .then(res => res.json())
+        .then(async res => {
+            // Si no es ok, tratar de leer texto para debug y lanzar
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(`HTTP ${res.status} - ${text}`);
+            }
+            return res.json();
+        })
         .then(data => {
             console.log("Video subido:", data);
 
+            // Guardar URL devuelta en uploadedUrls para incluirla luego en la creación del post
+            const url = data.imageUrl || data.url || data.image || null;
+            if (url) uploadedUrls.push(url);
+
             // Mostrar preview de video en lista de previsualizaciones
             const videoElem = document.createElement("video");
-            videoElem.src = data.url || data.imageUrl;
+            videoElem.src = url || '';
             videoElem.controls = true;
-            videoElem.style.cssText = "width:80px;height:80px;object-fit:cover;margin:5px;border-radius:6px;";
+            videoElem.style.cssText = "width:120px;height:80px;object-fit:cover;margin:5px;border-radius:6px;";
             previewsContainer.appendChild(videoElem);
 
-            // Guardarlo en el array final como si fuera imagen
-            croppedFiles.push(file);
+            // NOTA: no añadimos el file a croppedFiles (no volveremos a subirlo)
         })
         .catch(err => {
             console.error("Error subiendo video:", err);
-            alert("Error al subir el video.");
+            alert("Error al subir el video. Revisa la consola del servidor.");
         });
     }
 
@@ -134,6 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
         postImagesInput.value = '';
         croppedFiles = [];
         previewsContainer.innerHTML = '';
+        uploadedUrls = []; // limpiar URLs también si cancelan todo
     });
 
     cropAndSaveBtn.addEventListener('click', () => {
@@ -161,17 +175,29 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('title', createPostForm.querySelector('#post-title').value);
         formData.append('date', createPostForm.querySelector('#post-date').value);
         formData.append('content', createPostForm.querySelector('#post-content').value);
+
+        // Añadir imágenes recortadas (blobs)
         croppedFiles.forEach((file, index) => {
             formData.append('images', file, `image-${index}.jpg`);
         });
+
+        // Añadir URLs ya subidas (videos u otros). Se manda como JSON string en 'existingUrls'
+        if (uploadedUrls.length > 0) {
+            formData.append('existingUrls', JSON.stringify(uploadedUrls));
+        }
+
         try {
             const response = await fetch('/api/posts', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: formData });
-            if (!response.ok) throw new Error('Error al crear la publicación.');
+            if (!response.ok) {
+                const text = await response.text();
+                throw new Error(`Error al crear la publicación. Server said: ${text}`);
+            }
             createPostForm.reset();
             previewsContainer.innerHTML = '';
             croppedFiles = [];
+            uploadedUrls = [];
             fetchPosts();
-        } catch (error) { console.error(error); }
+        } catch (error) { console.error(error); alert('Error al crear la publicación. Revisa la consola.'); }
     });
 
     // --- 5. FUNCIONALIDAD PARA FORMULARIO DE ARTÍCULOS DINÁMICOS ---

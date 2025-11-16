@@ -23,9 +23,14 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Multer
+// Multer: memoria + límite mayor para videos
 const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const upload = multer({
+    storage,
+    limits: {
+        fileSize: 200 * 1024 * 1024 // 200 MB máximo por archivo (ajusta según necesites)
+    }
+});
 
 // 2. Inicializar la aplicación
 const app = express();
@@ -84,37 +89,55 @@ app.get('/api/posts', async (req, res) => {
 });
 
 // Crear un nuevo post
+// Acepta: files (images) y también existingUrls (JSON string) con URLs ya subidas (videos)
 app.post('/api/posts', authenticateToken, upload.array('images', 5), async (req, res) => {
     try {
         const { title, content, date } = req.body;
 
-        const imageUrls = [];
-
-        for (const file of req.files) {
-            const result = await new Promise((resolve, reject) => {
-                const uploadStream = cloudinary.uploader.upload_stream(
-                    {
-                        folder: 'portafolio_uploads',
-                        resource_type: 'auto'
-                    },
-                    (error, result) => {
-                        if (error) reject(error);
-                        else resolve(result);
-                    }
-                );
-
-                streamifier.createReadStream(file.buffer).pipe(uploadStream);
-            });
-
-            imageUrls.push(result.secure_url);
+        // 1) URLs entregadas desde frontend (videos ya subidos)
+        let existingUrls = [];
+        if (req.body.existingUrls) {
+            try {
+                existingUrls = JSON.parse(req.body.existingUrls);
+                if (!Array.isArray(existingUrls)) existingUrls = [];
+            } catch (err) {
+                console.warn('existingUrls no pudo parsearse como JSON:', req.body.existingUrls);
+                existingUrls = [];
+            }
         }
+
+        // 2) Archivos subidos en este request (imágenes recortadas)
+        const uploadedUrls = [];
+        if (req.files && req.files.length > 0) {
+            for (const file of req.files) {
+                const result = await new Promise((resolve, reject) => {
+                    const uploadStream = cloudinary.uploader.upload_stream(
+                        {
+                            folder: 'portafolio_uploads',
+                            resource_type: 'auto' // permite imágenes y videos
+                        },
+                        (error, result) => {
+                            if (error) reject(error);
+                            else resolve(result);
+                        }
+                    );
+                    streamifier.createReadStream(file.buffer).pipe(uploadStream);
+                });
+
+                uploadedUrls.push(result.secure_url);
+            }
+        }
+
+        // Combinar URLs ya subidas + las recién subidas
+        const imageUrls = [...existingUrls, ...uploadedUrls];
 
         const newPost = new Post({ title, content, date, images: imageUrls, type: 'normal' });
         await newPost.save();
         res.status(201).json(newPost);
     } catch (error) {
         console.error('Error al crear el post:', error);
-        res.status(500).json({ message: 'Error en el servidor' });
+        // devolver JSON legible para el frontend (no HTML)
+        res.status(500).json({ message: 'Error al crear el post', details: error.message });
     }
 });
 
@@ -167,7 +190,7 @@ app.post('/api/articles', authenticateToken, async (req, res) => {
     }
 });
 
-// Subir una sola imagen
+// Subir una sola imagen/video (usado por dashboard para subir videos inmediatamente)
 app.post('/api/upload', authenticateToken, upload.single('image'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ message: 'No se subió ningún archivo.' });
@@ -187,10 +210,11 @@ app.post('/api/upload', authenticateToken, upload.single('image'), async (req, r
             streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
         });
 
+        // responder siempre JSON con la URL en imageUrl
         res.status(201).json({ imageUrl: result.secure_url });
     } catch (error) {
-        console.error('Error al subir la imagen:', error);
-        res.status(500).json({ message: 'Error en el servidor.' });
+        console.error('Error al subir la imagen/video:', error);
+        res.status(500).json({ message: 'Error al subir archivo', details: error.message });
     }
 });
 
