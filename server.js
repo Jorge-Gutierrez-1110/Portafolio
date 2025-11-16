@@ -12,9 +12,9 @@ const jwt = require('jsonwebtoken');
 const User = require('./models/User');
 const cookieParser = require('cookie-parser');
 
-// --- NUEVO: Cloudinary ---
+// --- Cloudinary
 const cloudinary = require('cloudinary').v2;
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const streamifier = require('streamifier');
 
 // Configurar Cloudinary
 cloudinary.config({
@@ -23,25 +23,19 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Configurar almacenamiento de multer en Cloudinary
-const storage = new CloudinaryStorage({
-    cloudinary: cloudinary,
-    params: {
-        folder: 'portafolio_uploads', // Carpeta en tu cuenta de Cloudinary
-        allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-    },
-});
+// Multer
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // 2. Inicializar la aplicación
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 3. Configurar EJS como motor de plantillas
+// EJS como motor de plantillas
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Endpoint seguro que devuelve las claves necesarias para EmailJS
+// Endpoint EmailJS
 app.get("/api/emailjs-config", (req, res) => {
     res.json({
         publicKey: process.env.EMAILJS_PUBLIC_KEY,
@@ -53,7 +47,7 @@ app.get("/api/emailjs-config", (req, res) => {
 // 4. Middlewares
 app.use(cors({
     origin: true,
-    credentials: true // necesario para enviar cookies al frontend
+    credentials: true
 }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -61,7 +55,7 @@ app.use(cookieParser());
 
 // --- CONEXIÓN A MONGODB ---
 mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('✅ Conectado a MongoDB Atlas'))
+    .then(() => console.log('Conectado a MongoDB Atlas'))
     .catch((err) => console.error('❌ Error al conectar a MongoDB:', err));
 
 // Middleware de autenticación con JWT desde cookie
@@ -89,12 +83,29 @@ app.get('/api/posts', async (req, res) => {
     }
 });
 
-// Crear un nuevo post (usa Cloudinary)
+// Crear un nuevo post
 app.post('/api/posts', authenticateToken, upload.array('images', 5), async (req, res) => {
     try {
         const { title, content, date } = req.body;
-        // Cloudinary devuelve URLs accesibles directamente
-        const imageUrls = req.files.map(file => file.path);
+
+        const imageUrls = [];
+
+        for (const file of req.files) {
+            const result = await new Promise((resolve, reject) => {
+                const uploadStream = cloudinary.uploader.upload_stream(
+                    { folder: 'portafolio_uploads' },
+                    (error, result) => {
+                        if (error) reject(error);
+                        else resolve(result);
+                    }
+                );
+
+                streamifier.createReadStream(file.buffer).pipe(uploadStream);
+            });
+
+            imageUrls.push(result.secure_url);
+        }
+
         const newPost = new Post({ title, content, date, images: imageUrls, type: 'normal' });
         await newPost.save();
         res.status(201).json(newPost);
@@ -104,6 +115,7 @@ app.post('/api/posts', authenticateToken, upload.array('images', 5), async (req,
     }
 });
 
+// Editar post
 app.put('/api/posts/:id', authenticateToken, async (req, res) => {
     try {
         const { title, content } = req.body;
@@ -116,6 +128,7 @@ app.put('/api/posts/:id', authenticateToken, async (req, res) => {
     }
 });
 
+// Eliminar post
 app.delete('/api/posts/:id', authenticateToken, async (req, res) => {
     try {
         const deletedPost = await Post.findByIdAndDelete(req.params.id);
@@ -127,7 +140,7 @@ app.delete('/api/posts/:id', authenticateToken, async (req, res) => {
     }
 });
 
-// Obtener un post por ID
+// Obtener post por ID
 app.get('/api/posts/:id', async (req, res) => {
     try {
         const post = await Post.findById(req.params.id);
@@ -139,6 +152,7 @@ app.get('/api/posts/:id', async (req, res) => {
     }
 });
 
+// Crear artículos sin imágenes
 app.post('/api/articles', authenticateToken, async (req, res) => {
     try {
         const newArticle = new Post(req.body);
@@ -150,17 +164,31 @@ app.post('/api/articles', authenticateToken, async (req, res) => {
     }
 });
 
-// Subir una imagen (independiente, por ejemplo desde el editor)
-app.post('/api/upload', authenticateToken, upload.single('image'), (req, res) => {
+// Subir una sola imagen
+app.post('/api/upload', authenticateToken, upload.single('image'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ message: 'No se subió ningún archivo.' });
-        res.status(201).json({ imageUrl: req.file.path }); // URL directa de Cloudinary
+
+        const result = await new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+                { folder: 'portafolio_uploads' },
+                (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result);
+                }
+            );
+
+            streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+        });
+
+        res.status(201).json({ imageUrl: result.secure_url });
     } catch (error) {
-        res.status(500).json({ message: 'Error al subir la imagen.' });
+        console.error('Error al subir la imagen:', error);
+        res.status(500).json({ message: 'Error en el servidor.' });
     }
 });
 
-// --- RUTAS DE EJS ---
+// --- RUTAS EJS ---
 app.get('/', (req, res) => res.render('index', { title: 'Inicio', username: 'Jorge' }));
 
 app.get('/blog', async (req, res) => {
@@ -184,7 +212,7 @@ app.get('/editPost', async (req, res) => {
     res.render('editPost', { title: 'Editar publicación', post });
 });
 
-// --- AUTENTICACIÓN (Login / Registro) ---
+// --- LOGIN ---
 app.post('/api/auth/register', async (req, res) => {
     try {
         const count = await User.countDocuments();
@@ -237,5 +265,5 @@ app.post('/api/auth/logout', (req, res) => {
 
 // --- INICIAR SERVIDOR ---
 app.listen(PORT, () => {
-    console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+    console.log(`Servidor activo en http://localhost:${PORT}`);
 });
