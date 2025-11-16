@@ -74,14 +74,59 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     postImagesInput.addEventListener('change', (event) => {
-        filesToCrop = Array.from(event.target.files);
+        const selectedFiles = Array.from(event.target.files);
+
+        // Limpiar estados anteriores
+        filesToCrop = [];
         croppedFiles = [];
         previewsContainer.innerHTML = '';
         currentFileIndex = 0;
+
+        selectedFiles.forEach(file => {
+            if (file.type.startsWith("video/")) {
+                // 👉 Subir videos directo sin cropper
+                handleVideoUpload(file);
+            } else {
+                // 👉 Es imagen, sí va al cropper
+                filesToCrop.push(file);
+            }
+        });
+
+        // Si hay imágenes, abrir cropper con la primera
         if (filesToCrop.length > 0) {
             openCropper(filesToCrop[currentFileIndex]);
         }
     });
+
+    // 👉 NUEVA FUNCIÓN para subir videos sin recorte
+    function handleVideoUpload(file) {
+        const formData = new FormData();
+        formData.append("images", file); // usa el mismo endpoint
+
+        fetch("/api/upload", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${token}` },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log("Video subido:", data);
+
+            // Mostrar preview de video en lista de previsualizaciones
+            const videoElem = document.createElement("video");
+            videoElem.src = data.url || data.imageUrl;
+            videoElem.controls = true;
+            videoElem.style.cssText = "width:80px;height:80px;object-fit:cover;margin:5px;border-radius:6px;";
+            previewsContainer.appendChild(videoElem);
+
+            // Guardarlo en el array final como si fuera imagen
+            croppedFiles.push(file);
+        })
+        .catch(err => {
+            console.error("Error subiendo video:", err);
+            alert("Error al subir el video.");
+        });
+    }
 
     cancelCropBtn.addEventListener('click', () => {
         cropperModal.classList.add('hidden');
