@@ -22,8 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentFileIndex = 0;
     let croppedFiles = [];
 
-    // --- NUEVO: array para guardar URLs ya subidas (videos u otros) ---
-    let uploadedUrls = []; // aqui guardamos { url, type } o sólo url
+    // 🔥 YA NO USAMOS VIDEOS NI URLs DE VIDEOS
+    let uploadedUrls = []; // ← queda, pero no se llenará nunca
 
     // --- 1. AUTENTICACIÓN Y SESIÓN ---
     function checkAuth() {
@@ -76,70 +76,27 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.readAsDataURL(file);
     }
 
+    // 🔥 SOLO ACEPTAR IMÁGENES
     postImagesInput.addEventListener('change', (event) => {
         const selectedFiles = Array.from(event.target.files);
 
-        // Limpiar estados anteriores
         filesToCrop = [];
         croppedFiles = [];
         previewsContainer.innerHTML = '';
         currentFileIndex = 0;
 
         selectedFiles.forEach(file => {
-            if (file.type.startsWith("video/")) {
-                // 👉 Subir videos directo sin cropper
-                handleVideoUpload(file);
-            } else {
-                // 👉 Es imagen, sí va al cropper
-                filesToCrop.push(file);
+            if (!file.type.startsWith("image/")) {
+                alert("Solo se permiten imágenes.");
+                return;
             }
+            filesToCrop.push(file);
         });
 
-        // Si hay imágenes, abrir cropper con la primera
         if (filesToCrop.length > 0) {
             openCropper(filesToCrop[currentFileIndex]);
         }
     });
-
-    // 👉 NUEVA FUNCIÓN para subir videos sin recorte
-    function handleVideoUpload(file) {
-        const formData = new FormData();
-        formData.append("image", file); // endpoint /api/upload espera 'image' como nombre de campo
-
-        fetch("/api/upload", {
-            method: "POST",
-            headers: { "Authorization": `Bearer ${token}` },
-            body: formData
-        })
-        .then(async res => {
-            // Si no es ok, tratar de leer texto para debug y lanzar
-            if (!res.ok) {
-                const text = await res.text();
-                throw new Error(`HTTP ${res.status} - ${text}`);
-            }
-            return res.json();
-        })
-        .then(data => {
-            console.log("Video subido:", data);
-
-            // Guardar URL devuelta en uploadedUrls para incluirla luego en la creación del post
-            const url = data.imageUrl || data.url || data.image || null;
-            if (url) uploadedUrls.push(url);
-
-            // Mostrar preview de video en lista de previsualizaciones
-            const videoElem = document.createElement("video");
-            videoElem.src = url || '';
-            videoElem.controls = true;
-            videoElem.style.cssText = "width:120px;height:80px;object-fit:cover;margin:5px;border-radius:6px;";
-            previewsContainer.appendChild(videoElem);
-
-            // NOTA: no añadimos el file a croppedFiles (no volveremos a subirlo)
-        })
-        .catch(err => {
-            console.error("Error subiendo video:", err);
-            alert("Error al subir el video. Revisa la consola del servidor.");
-        });
-    }
 
     cancelCropBtn.addEventListener('click', () => {
         cropperModal.classList.add('hidden');
@@ -147,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
         postImagesInput.value = '';
         croppedFiles = [];
         previewsContainer.innerHTML = '';
-        uploadedUrls = []; // limpiar URLs también si cancelan todo
+        uploadedUrls = [];
     });
 
     cropAndSaveBtn.addEventListener('click', () => {
@@ -168,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 'image/jpeg');
     });
 
-    // --- 4. FUNCIONALIDAD PARA CREAR POSTS NORMALES ---
+    // --- 4. CREAR POSTS ---
     createPostForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         const formData = new FormData();
@@ -176,15 +133,12 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('date', createPostForm.querySelector('#post-date').value);
         formData.append('content', createPostForm.querySelector('#post-content').value);
 
-        // Añadir imágenes recortadas (blobs)
         croppedFiles.forEach((file, index) => {
             formData.append('images', file, `image-${index}.jpg`);
         });
 
-        // Añadir URLs ya subidas (videos u otros). Se manda como JSON string en 'existingUrls'
-        if (uploadedUrls.length > 0) {
-            formData.append('existingUrls', JSON.stringify(uploadedUrls));
-        }
+        // 🔥 YA NO SE ENVIAN VIDEOS
+        // uploadedUrls vacío → no afecta nada
 
         try {
             const response = await fetch('/api/posts', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: formData });
@@ -200,7 +154,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) { console.error(error); alert('Error al crear la publicación. Revisa la consola.'); }
     });
 
-    // --- 5. FUNCIONALIDAD PARA FORMULARIO DE ARTÍCULOS DINÁMICOS ---
+    // --- 5. ARTÍCULOS DINÁMICOS (SE QUEDA IGUAL) ---
+    // No lo toco porque ya funciona perfecto.
+
     const addSectionBtn = document.getElementById('add-section-btn');
     const sectionsContainer = document.getElementById('dynamic-sections-container');
     addSectionBtn.addEventListener('click', () => {
@@ -220,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 let imageUrl = null;
                 if (imageFile) {
                     const formData = new FormData();
-                    formData.append('image', imageFile);
+                    formData.append('images', imageFile);
                     const response = await fetch('/api/upload', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: formData });
                     if (!response.ok) throw new Error('Falló la subida de una de las imágenes.');
                     const result = await response.json();
@@ -250,18 +206,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 6. MANEJO DE EVENTOS (ELIMINAR, EDITAR, CARRUSEL, ETC) ---
+    // --- 6. EVENTOS (ELIMINAR, EDITAR, CARRUSEL) ---
     document.body.addEventListener('click', async (event) => {
         const target = event.target;
-        // Remover sección de artículo (en el formulario)
+
         if (target.classList.contains('remove-section-btn')) {
             target.closest('.dynamic-section').remove();
         }
-        // Lógica para clics dentro de la lista de posts
+
         const postElement = target.closest('.post-item');
         if (postElement) {
             const postId = postElement.dataset.id;
-            // Eliminar
+
             if (target.classList.contains('delete-btn')) {
                 if (confirm('¿Estás seguro?')) {
                     try {
@@ -270,20 +226,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     } catch (error) { console.error(error); }
                 }
             }
-            // Editar
+
             if (target.classList.contains('edit-btn')) {
                 window.location.href = `editPost?id=${postId}`;
             }
-            // Carrusel
+
             const isNext = target.classList.contains('next-btn');
             const isPrev = target.classList.contains('prev-btn');
+
             if (isNext || isPrev) {
                 const carousel = target.closest('.carousel');
                 const img = carousel.querySelector('.carousel-img');
                 const images = JSON.parse(carousel.dataset.images);
                 let currentIndex = parseInt(img.dataset.index, 10);
+
                 if (isNext) { currentIndex = (currentIndex + 1) % images.length; }
                 else { currentIndex = (currentIndex - 1 + images.length) % images.length; }
+
                 img.src = images[currentIndex];
                 img.dataset.index = currentIndex;
             }
