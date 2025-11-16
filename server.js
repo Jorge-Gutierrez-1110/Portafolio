@@ -93,7 +93,10 @@ app.post('/api/posts', authenticateToken, upload.array('images', 5), async (req,
         for (const file of req.files) {
             const result = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
-                    { folder: 'portafolio_uploads' },
+                    {
+                        folder: 'portafolio_uploads',
+                        resource_type: 'auto'
+                    },
                     (error, result) => {
                         if (error) reject(error);
                         else resolve(result);
@@ -171,7 +174,10 @@ app.post('/api/upload', authenticateToken, upload.single('image'), async (req, r
 
         const result = await new Promise((resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream(
-                { folder: 'portafolio_uploads' },
+                {
+                    folder: 'portafolio_uploads',
+                    resource_type: 'auto'
+                },
                 (error, result) => {
                     if (error) reject(error);
                     else resolve(result);
