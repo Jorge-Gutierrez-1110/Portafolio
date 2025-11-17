@@ -56,9 +56,9 @@ document.addEventListener('DOMContentLoaded', () => {
             postElement.dataset.id = post._id;
             if (post.type === 'article') {
                 const firstImage = post.sections.find(s => s.image)?.image || '/images/placeholder.jpg';
-                postElement.innerHTML = `<h3>${post.title} (Artículo)</h3><p>${new Date(post.date).toLocaleDateString()}</p><div class="preview-image"><img src="${firstImage}" alt="${post.title}" width="200"></div><div class="post-actions"><button class="edit-btn">Editar</button><button class="delete-btn">Eliminar</button></div>`;
+                postElement.innerHTML = `<h3>${post.title} (Artículo)</h3><p>${post.date}</p><div class="preview-image"><img src="${firstImage}" alt="${post.title}" width="200"></div><div class="post-actions"><button class="edit-btn">Editar</button><button class="delete-btn">Eliminar</button></div>`;
             } else {
-                postElement.innerHTML = `<h3>${post.title}</h3><p>${new Date(post.date).toLocaleDateString()}</p><div class="carousel" data-images='${JSON.stringify(post.images)}'><div class="carousel-image-container"><img src="${post.images[0] || '/images/placeholder.jpg'}" alt="${post.title}" class="carousel-img" data-index="0"></div><button class="prev-btn" ${post.images.length <= 1 ? 'disabled' : ''}>Anterior</button><button class="next-btn" ${post.images.length <= 1 ? 'disabled' : ''}>Siguiente</button></div><div class="post-actions"><button class="edit-btn">Editar</button><button class="delete-btn">Eliminar</button></div>`;
+                postElement.innerHTML = `<h3>${post.title}</h3><p>${post.date}</p><div class="carousel" data-images='${JSON.stringify(post.images)}'><div class="carousel-image-container"><img src="${post.images[0] || '/images/placeholder.jpg'}" alt="${post.title}" class="carousel-img" data-index="0"></div><button class="prev-btn" ${post.images.length <= 1 ? 'disabled' : ''}>Anterior</button><button class="next-btn" ${post.images.length <= 1 ? 'disabled' : ''}>Siguiente</button></div><div class="post-actions"><button class="edit-btn">Editar</button><button class="delete-btn">Eliminar</button></div>`;
             }
             postsListContainer.appendChild(postElement);
         });
