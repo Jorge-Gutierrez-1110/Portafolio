@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <img src="${previewImage}" alt="Miniatura de ${post.title}" class="preview-img">
             <div class="preview-content">
                 <h2>${post.title}</h2>
-                <small>Publicado el: ${new Date(post.date).toLocaleDateString()}</small>
+                <small>Publicado el: ${post.date.split('T')[0].split('-').reverse().join('/')}</small>
                 ${previewContent}
             </div>
             <button class="read-more-btn" data-id="${post._id}">Ver artículo completo</button>
@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
         singlePostContainer.innerHTML = `
             <article class="full-post">
                 <h1>${post.title}</h1>
-                <p>Posted by Jorge Gtz | ${new Date(post.date).toLocaleDateString()}</p>
+                <p>Posted by Jorge Gtz | ${post.date.split('T')[0].split('-').reverse().join('/')}</p>
                 <div class="full-post-content" style="margin-top: 1rem;">
                     ${fullContentHTML}
                 </div>
