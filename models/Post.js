@@ -1,50 +1,45 @@
 const mongoose = require('mongoose');
 
-// --- NUEVO: Definimos la estructura de una sección ---
-// Este es un "subdocumento". No será un modelo propio, sino parte del modelo Post.
+// Modelo Post
 const sectionSchema = new mongoose.Schema({
     subtitle: {
         type: String,
-        required: false // El subtítulo es opcional
+        required: false
     },
     content: {
         type: String,
-        required: false // El contenido de una sección sí es obligatorio
+        required: false 
     },
     image: {
-        type: String, // Guardaremos la URL de la imagen
+        type: String,
         required: false
     }
 });
-// ----------------------------------------------------
 
-// Actualizamos el Schema principal del Post
+// Schema principal del Post
 const postSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true
     },
-    // CAMBIO: El contenido principal ahora es opcional.
-    // Solo los posts "normales" lo usarán. Los artículos usarán las secciones.
     content: {
         type: String,
         required: false
     },
     date: {
-        type: Date,
+        type: String,
         required: true
     },
     images: {
-        type: [String] // Para el carrusel del post "normal"
+        type: [String]
     },
-    // --- NUEVO: Campo para diferenciar el tipo de publicación ---
+    // Campo para diferenciar entre post normal y artículo
     type: {
         type: String,
-        enum: ['normal', 'article'], // Solo permite estos dos valores
+        enum: ['normal', 'article'],
         default: 'normal'
     },
-    // --- NUEVO: Campo para guardar las secciones del artículo ---
-    // Será un array de objetos, y cada objeto seguirá la estructura de 'sectionSchema'.
+    // Campo para guardar las secciones del artículo
     sections: [sectionSchema]
 });
 

@@ -125,7 +125,9 @@ app.post('/api/posts', authenticateToken, upload.array('images', 5), async (req,
         const imageUrls = [...existingUrls, ...uploadedUrls];
 
         const newPost = new Post({
-            title, content, date,
+            title,
+            content,
+            date: date.toString(),
             images: imageUrls,
             type: "normal"
         });
